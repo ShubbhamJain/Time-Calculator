@@ -1,60 +1,99 @@
-def add_time(start, duration, startDay = ''):
-  new_time = ''
+def add_time(start, duration, startDay=""):
+    new_time = ""
 
-  startTime = start.split(' ')
+    numOfDay = 0
+    listOfDays = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]
 
-  startTimeHours, startTimeMins = startTime[0].split(':')
-  timeType = startTime[1]
-  timeTypeInitial = True
+    if startDay:
+        dayParam = str(startDay).lower()
+        if dayParam in listOfDays:
+            numOfDay = listOfDays.index(dayParam)
 
-  startTimeHours = int(startTimeHours)
-  startTimeMins = int(startTimeMins)
+    startTime = start.split(" ")
+    startTimeHours, startTimeMins = startTime[0].split(":")
+    timeType = startTime[1]
+    durationHours, durationMins = duration.split(":")
 
-#   print(13, startTimeHours, timeTypeInitial)
-  if (timeType == 'PM'):
-    startTimeHours = startTimeHours + 12
-    timeTypeInitial = not timeTypeInitial
-#   print(17, startTimeHours, timeTypeInitial)
+    timeTypeInitial = True
+    listOfTimeType = ["AM", "PM"]
 
-  durationHours, durationMins = duration.split(':')
+    if listOfTimeType[0] == timeType:
+        timeTypeInitial = True
+    elif listOfTimeType[1] == timeType:
+        timeTypeInitial = False
 
-  newHours = startTimeHours + int(durationHours)
-  newMins = startTimeMins + int(durationMins)
+    newHours = int(startTimeHours) + int(durationHours)
+    newMins = int(startTimeMins) + int(durationMins)
 
-  if (newMins > 60 and newMins % 60 > 0):
-    newHours = newHours + int(newMins / 60)
-    newMins = newMins - 60
-    timeTypeInitial = not timeTypeInitial
+    if timeType == listOfTimeType[1]:
+        newHours += 12
 
-  daysCount = 0
-  daysStr = ''
+    if newMins >= 60:
+        newHours = newHours + int(newMins / 60)
+        newMins = newMins - 60
 
-  if (newHours > 12 and newHours <= 24):
-    newHours -= 12
-  elif (newHours > 24):
-    daysCount = int(newHours / 24)
-    newHours = newHours - daysCount * 24
+    daysCount = 0
+    daysStr = ""
 
-    if (newHours == 0): newHours = 12
-
-    if (daysCount == 1):
-        daysStr = f'(next day)'
+    if newHours % 24 == 12:
+        timeTypeInitial = False
+    elif newHours % 24 >= 12:
+        timeTypeInitial = False
     else:
-        daysStr = f'({daysCount} days later)'
+        timeTypeInitial = True
 
-  if (len(str(newMins)) == 1):
-    newMins = '0' + str(newMins)
+    # it shows that we are in the same day
+    if newHours > 12 and newHours <= 24:
+        newHours -= 12
 
-  if (timeTypeInitial):
-    timeType = 'AM'
-  else:
-    timeType = 'PM'
+    # it shows that we are not in the same day, we are past that day
+    elif newHours > 24:
+        daysCount = int(newHours / 24)
 
-  if (startDay):
-    new_time = f'{newHours}:{newMins} {timeType} {daysStr}'
-  else:
-    new_time = f'{newHours}:{newMins} {timeType}'
-  return new_time
+        newHours = newHours - daysCount * 24
+
+        if newHours == 0:
+            newHours = 12
+
+        if daysCount == 1:
+            daysStr = f"(next day)"
+            numOfDay += 1
+        else:
+            daysStr = f"({daysCount} days later)"
+
+            for i in range(daysCount):
+                numOfDay += 1
+                if numOfDay == len(listOfDays) and i <= daysCount:
+                    numOfDay = 0
+
+    if len(str(newMins)) == 1:
+        newMins = "0" + str(newMins)
+
+    if timeTypeInitial:
+        timeType = listOfTimeType[0]
+    else:
+        timeType = listOfTimeType[1]
+
+    if startDay:
+        new_time = (
+            f"{newHours}:{newMins} {timeType}, {listOfDays[numOfDay].capitalize()}"
+        )
+    else:
+        new_time = f"{newHours}:{newMins} {timeType}"
+
+    if daysStr:
+        new_time += f" {daysStr}"
+
+    return new_time
+
 
 print(add_time("11:06 PM", "2:02"))
 print(add_time("11:55 AM", "3:12"))
