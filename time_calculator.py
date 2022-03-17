@@ -62,6 +62,8 @@ def add_time(start, duration, startDay=""):
 
         if newHours == 0:
             newHours = 12
+        elif newHours > 12:
+            newHours -= 12
 
         if daysCount == 1:
             daysStr = f"(next day)"
@@ -108,3 +110,4 @@ print(add_time("2:59 AM ", "24:00"))
 print(add_time("2:59 AM ", "24:00", "saturDay"))
 print(add_time("11:59 PM", "24:05"))
 print(add_time("11:59 PM", "24:05", "Wednesday"))
+print(add_time("11:00 PM", "111:00", "Wednesday"))
